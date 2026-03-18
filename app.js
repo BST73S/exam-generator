@@ -118,7 +118,7 @@ function exportPDF() {
 
 async function generateExam(topic, stakeholder, issue, keywords) {
 
-  const response = await fetch("http://localhost:3000/generate", {
+  const response = await fetch("https://exam-generator-wcn2.onrender.com", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
