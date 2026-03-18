@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Design Exam Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Link to your CSS -->
+  <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+
+  <!-- =========================
+       MOBILE INPUT UI
+  ========================== -->
+  <section class="input-container">
+
+    <h1>Design Exam Generator</h1>
+
+    <form id="examForm">
+
+      <label>Design Topic</label>
+      <input type="text" id="topic" placeholder="e.g. rubbish in schools" required>
+
+      <label>Stakeholder</label>
+      <input type="text" id="stakeholder" placeholder="e.g. Year 8 student" required>
+
+      <label>Specific Issue</label>
+      <input type="text" id="issue" placeholder="e.g. poor bin habits" required>
+
+      <label>Keywords (verbs)</label>
+      <input type="text" id="keywords" placeholder="reduce, improve, encourage">
+
+      <button type="submit">Generate Exam</button>
+
+    </form>
+
+  </section>
+
+
+  <!-- =========================
+       PREVIEW / OUTPUT
+  ========================== -->
+  <section class="preview-container" id="preview">
+  <h2>Preview</h2>
+  <button onclick="exportPDF()">Download A3 PDF</button>
+
+  <!-- ADD THIS -->
+  <div id="status">Waiting for input...</div>
+</section>
+
+
+  <!-- =========================
+       A3 LANDSCAPE TEMPLATE
+       (Hidden - used for export)
+  ========================== -->
+  <section id="a3-page" class="a3-page">
+
+  <!-- LEFT COLUMN -->
+  <div class="left">
+
+    <h2>Design Problem</h2>
+    <p id="designProblem"></p>
+
+    <h2>About the Stakeholder</h2>
+    <p id="about"></p>
+
+    <h3>Experiences</h3>
+    <ul id="experiences"></ul>
+
+    <h3>Attitudes</h3>
+    <ul id="attitudes"></ul>
+
+    <h3>Motivations</h3>
+    <ul id="motivations"></ul>
+
+    <h3>Expectations</h3>
+    <ul id="expectations"></ul>
+
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="right">
+
+    <h2>Design Criteria</h2>
+    <ul id="designCriteria"></ul>
+
+  </div>
+
+  <!-- BOTTOM IMAGE GRID -->
+  <div class="stimulus">
+    <img id="img1">
+    <img id="img2">
+    <img id="img3">
+    <img id="img4">
+  </div>
+
+</section>
+
+
+  <!-- =========================
+       SCRIPT
+  ========================== -->
+  <script src="app.js"></script>
+
+</body>
+</html>
