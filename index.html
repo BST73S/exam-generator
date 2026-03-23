@@ -1,108 +1,457 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Design Exam Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Exam Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; background: #d6d1c8; }
 
-  <!-- Link to your CSS -->
-  <link rel="stylesheet" href="main.css">
+/* CONTROL PANEL */
+#control-panel {
+  background: #1a1a2e; color: #fff;
+  padding: 1.2rem 1.8rem;
+  display: flex; flex-wrap: wrap; gap: .9rem; align-items: flex-end;
+}
+.panel-title { width: 100%; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: .6rem; }
+.badge { font-size: .6rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; background: #c84b31; padding: .2rem .5rem; border-radius: 2px; }
+.field-wrap { display: flex; flex-direction: column; gap: .3rem; flex: 1; min-width: 150px; }
+.field-wrap label { font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8090a0; }
+.field-wrap input {
+  background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.18);
+  border-radius: 3px; color: #fff; font-family: Arial, Helvetica, sans-serif;
+  font-size: .85rem; padding: .48rem .75rem; outline: none;
+}
+.field-wrap input::placeholder { color: rgba(255,255,255,.28); }
+.field-wrap input:focus { border-color: #c84b31; }
+.actions { display: flex; gap: .55rem; align-items: flex-end; flex-wrap: wrap; }
+.btn {
+  font-family: Arial, Helvetica, sans-serif; font-weight: 700; font-size: .8rem;
+  padding: .52rem 1.1rem; border: none; border-radius: 3px; cursor: pointer;
+  display: flex; align-items: center; gap: .4rem; white-space: nowrap;
+}
+.btn-gen  { background: #c84b31; color: #fff; }
+.btn-gen:hover  { background: #a83a22; }
+.btn-gen:disabled { background: #5a2e22; color: rgba(255,255,255,.3); cursor: not-allowed; }
+.btn-rand { background: #2d6a4f; color: #fff; }
+.btn-rand:hover { background: #1f4f3a; }
+.btn-rand:disabled { background: #1a3328; color: rgba(255,255,255,.3); cursor: not-allowed; }
+.btn-pdf  { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.2); }
+.btn-pdf:hover  { background: rgba(255,255,255,.18); }
+.btn-pdf:disabled  { opacity: .3; cursor: not-allowed; }
+.btn-copy { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.2); }
+.btn-copy:hover { background: rgba(255,255,255,.18); }
+.btn-copy:disabled { opacity: .3; cursor: not-allowed; }
+#status { width: 100%; font-size: .75rem; color: #7a9a8a; font-style: italic; min-height: 1em; }
+
+/* SHEET AREA */
+#sheet-area { padding: 1.4rem 1.8rem 2rem; overflow-x: auto; }
+#hint { text-align: center; padding: 3rem 1rem; color: #7a7468; font-style: italic; }
+
+/* A3 EXAM SHEET */
+#exam-sheet {
+  display: none; background: #fff;
+  box-shadow: 0 4px 40px rgba(0,0,0,.25);
+  width: 1120px; margin: 0 auto;
+  font-family: Arial, Helvetica, sans-serif; font-size: 11pt; color: #000;
+}
+.sheet-grid {
+  display: grid; grid-template-columns: 48% 52%; grid-template-rows: auto 1fr;
+}
+.sh-header {
+  grid-column: 1 / -1; padding: .45em 1em .4em;
+  border-bottom: 2px solid #000;
+  display: flex; align-items: baseline; justify-content: space-between;
+}
+.sh-title { font-size: 1.5em; font-weight: 700; }
+.sh-meta { font-size: .75em; color: #444; text-align: right; line-height: 1.5; }
+.col-left {
+  padding: .8em 1em .8em .9em; border-right: 1px solid #ccc;
+  display: flex; flex-direction: column; gap: .7em;
+}
+.col-right { padding: .8em .9em .8em 1em; display: flex; flex-direction: column; gap: .7em; }
+.s-head { font-weight: 700; font-size: 1em; margin-bottom: .3em; padding-bottom: .2em; border-bottom: 1px solid #ccc; }
+.s-body { font-size: .9em; line-height: 1.55; color: #111; }
+.sh-intro { background: #f5f2ec; border-left: 3px solid #888; padding: .4em .65em; font-size: .88em; line-height: 1.5; color: #111; margin-bottom: .3em; }
+.sub-head { font-weight: 700; font-size: .88em; margin-bottom: .2em; }
+.blist { list-style: none; padding: 0; }
+.blist li { display: flex; gap: .4em; font-size: .85em; line-height: 1.4; color: #111; margin-bottom: .15em; align-items: flex-start; }
+.blist li::before { content: '\2022'; flex-shrink: 0; }
+.crit-ol { list-style: none; padding: 0; display: flex; flex-direction: column; gap: .45em; }
+.crit-ol li { display: flex; gap: .5em; font-size: .88em; line-height: 1.5; color: #111; }
+.crit-n { font-weight: 700; flex-shrink: 0; min-width: 1.4em; }
+.crit-lbl { font-weight: 700; }
+.img-grid {
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+  gap: .4em; flex: 1; min-height: 260px; height: 100%;
+}
+.img-slot { background: #e8e4dc; position: relative; overflow: hidden; min-height: 120px; }
+.img-slot img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.img-slot .img-ph { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+.img-ph { display: flex; flex-direction: column; align-items: center; gap: .25em; color: #aaa; font-size: .68em; text-align: center; }
+.skel { background: linear-gradient(90deg,#ede8de 25%,#ddd8ce 50%,#ede8de 75%); background-size: 200% 100%; animation: sk 1.3s infinite; border-radius: 2px; height: .85em; margin-bottom: .28em; }
+@keyframes sk { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+@media print {
+  #control-panel { display: none !important; }
+  #sheet-area { padding: 0; overflow: visible; }
+  #exam-sheet { display: block !important; box-shadow: none; width: 100%; }
+}
+@page { size: A3 landscape; margin: 0; }
+</style>
 </head>
-
 <body>
 
-  <!-- =========================
-       MOBILE INPUT UI
-  ========================== -->
-  <section class="input-container">
+</div>
 
-    <h1>Design Exam Generator</h1>
-
-    <form id="examForm">
-
-      <label>Design Topic</label>
-      <input type="text" id="topic" placeholder="e.g. rubbish in schools" required>
-
-      <label>Stakeholder</label>
-      <input type="text" id="stakeholder" placeholder="e.g. Year 8 student" required>
-
-      <label>Specific Issue</label>
-      <input type="text" id="issue" placeholder="e.g. poor bin habits" required>
-
-      <label>Keywords (verbs)</label>
-      <input type="text" id="keywords" placeholder="reduce, improve, encourage">
-
-      <button type="submit">Generate Exam</button>
-
-    </form>
-
-  </section>
-
-
-  <!-- =========================
-       PREVIEW / OUTPUT
-  ========================== -->
-  <section class="preview-container" id="preview">
-  <h2>Preview</h2>
-  <button onclick="exportPDF()">Download A3 PDF</button>
-
-  <!-- ADD THIS -->
-  <div id="status">Waiting for input...</div>
-</section>
-
-
-  <!-- =========================
-       A3 LANDSCAPE TEMPLATE
-       (Hidden - used for export)
-  ========================== -->
-  <section id="a3-page" class="a3-page">
-
-  <!-- LEFT COLUMN -->
-  <div class="left">
-
-    <h2>Design Problem</h2>
-    <p id="designProblem"></p>
-
-    <h2>About the Stakeholder</h2>
-    <p id="about"></p>
-
-    <h3>Experiences</h3>
-    <ul id="experiences"></ul>
-
-    <h3>Attitudes</h3>
-    <ul id="attitudes"></ul>
-
-    <h3>Motivations</h3>
-    <ul id="motivations"></ul>
-
-    <h3>Expectations</h3>
-    <ul id="expectations"></ul>
-
+<!-- CONTROL PANEL -->
+<div id="control-panel">
+  <div class="panel-title">Design Exam Generator <span class="badge">AI Powered</span></div>
+  <div class="field-wrap">
+    <label>Design Topic</label>
+    <input id="f-topic" type="text" placeholder="e.g. Sustainable Packaging" />
   </div>
-
-  <!-- RIGHT COLUMN -->
-  <div class="right">
-
-    <h2>Design Criteria</h2>
-    <ul id="designCriteria"></ul>
-
+  <div class="field-wrap">
+    <label>Stakeholder</label>
+    <input id="f-stakeholder" type="text" placeholder="e.g. Elderly Consumer" />
   </div>
-
-  <!-- BOTTOM IMAGE GRID -->
-  <div class="stimulus">
-    <img id="img1">
-    <img id="img2">
-    <img id="img3">
-    <img id="img4">
+  <div class="field-wrap">
+    <label>Specific Issue</label>
+    <input id="f-issue" type="text" placeholder="e.g. Difficulty opening containers" />
   </div>
+  <div class="field-wrap">
+    <label>Keywords / Verbs</label>
+    <input id="f-keywords" type="text" placeholder="e.g. analyse, justify, evaluate" />
+  </div>
+  <div class="actions">
+    <button class="btn btn-gen" id="btn-gen">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Generate Exam
+    </button>
+    <button class="btn btn-rand" id="btn-rand">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+      Random
+    </button>
+    <button class="btn btn-pdf" id="btn-pdf" disabled>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Download A3 PDF
+    </button>
+    <button class="btn btn-copy" id="btn-copy" disabled>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copy Text
+    </button>
+  </div>
+  <div id="status"></div>
+</div>
 
-</section>
+<!-- SHEET AREA -->
+<div id="sheet-area">
+  <div id="hint">Fill in the fields above and click <strong>Generate Exam</strong>, or click <strong>Random</strong> to auto-populate a scenario.</div>
+  <div id="exam-sheet">
+    <div class="sheet-grid">
+      <div class="sh-header">
+        <div class="sh-title">Mock Exam</div>
+        <div class="sh-meta" id="sh-meta"></div>
+      </div>
+      <div class="col-left">
+        <div>
+          <div class="s-head">Design problem</div>
+          <div class="s-body" id="dp-p1"></div>
+          <div class="s-body" style="margin-top:.5em" id="dp-p2"></div>
+        </div>
+        <div>
+          <div class="s-head">About the stakeholder</div>
+          <div class="sh-intro" id="sh-intro"></div>
+          <div style="margin-bottom:.4em"><div class="sub-head">Experiences</div><ul class="blist" id="sh-exp"></ul></div>
+          <div style="margin-bottom:.4em"><div class="sub-head">Attitudes</div><ul class="blist" id="sh-att"></ul></div>
+          <div style="margin-bottom:.4em"><div class="sub-head">Motivations</div><ul class="blist" id="sh-mot"></ul></div>
+          <div><div class="sub-head">Expectations</div><ul class="blist" id="sh-exp2"></ul></div>
+        </div>
+      </div>
+      <div class="col-right">
+        <div>
+          <div class="s-head">Design criteria</div>
+          <ol class="crit-ol" id="crit-list"></ol>
+        </div>
+        <div class="img-grid">
+          <div class="img-slot" id="img-0"><div class="img-ph"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Image 1</div></div>
+          <div class="img-slot" id="img-1"><div class="img-ph"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Image 2</div></div>
+          <div class="img-slot" id="img-2"><div class="img-ph"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Image 3</div></div>
+          <div class="img-slot" id="img-3"><div class="img-ph"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Image 4</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
+<script>
+var $ = function(id) { return document.getElementById(id); };
 
-  <!-- =========================
-       SCRIPT
-  ========================== -->
-  <script src="app.js"></script>
+/* ── RANDOM SCENARIO BANK ── aligned to QCAA Design 2025 units ── */
+var SCENARIOS = [
+  { topic: 'School waste management', stakeholder: 'Secondary school student', issue: 'Littering and overflowing bins in school grounds', keywords: 'analyse, describe, justify' },
+  { topic: 'Aged care mobility', stakeholder: 'Elderly resident in aged care', issue: 'Difficulty moving safely between rooms independently', keywords: 'analyse, evaluate, propose' },
+  { topic: 'Urban cycling infrastructure', stakeholder: 'Commuter cyclist', issue: 'Lack of safe and convenient bike storage at workplaces', keywords: 'analyse, devise, evaluate' },
+  { topic: 'Food packaging accessibility', stakeholder: 'Person with arthritis', issue: 'Inability to open sealed food packaging independently', keywords: 'describe, analyse, justify' },
+  { topic: 'Outdoor dining spaces', stakeholder: 'Cafe owner in a suburban area', issue: 'Underutilised footpath area reducing customer seating', keywords: 'analyse, propose, evaluate' },
+  { topic: 'Emergency wayfinding', stakeholder: 'Hospital visitor unfamiliar with the building', issue: 'Confusing signage causing delays in reaching patients', keywords: 'analyse, describe, devise' },
+  { topic: 'Children playground equipment', stakeholder: 'Parent of a child with a physical disability', issue: 'Lack of inclusive play equipment in public parks', keywords: 'analyse, evaluate, propose' },
+  { topic: 'Remote learning environments', stakeholder: 'Rural secondary school student', issue: 'Poor ergonomic setup for extended at-home study', keywords: 'describe, analyse, evaluate' },
+  { topic: 'Public transport waiting areas', stakeholder: 'Elderly commuter', issue: 'Inadequate shelter and seating at bus stops', keywords: 'analyse, justify, propose' },
+  { topic: 'Sustainable fashion', stakeholder: 'Environmentally conscious young adult', issue: 'Difficulty identifying and purchasing ethical clothing brands', keywords: 'analyse, evaluate, devise' },
+  { topic: 'Community garden design', stakeholder: 'Resident in a high-density apartment block', issue: 'No access to outdoor green space for growing food', keywords: 'describe, analyse, propose' },
+  { topic: 'Workplace noise management', stakeholder: 'Open-plan office worker', issue: 'Inability to concentrate due to ambient office noise', keywords: 'analyse, evaluate, justify' },
+  { topic: 'Water bottle refill access', stakeholder: 'University student on campus', issue: 'Insufficient refill stations leading to single-use plastic waste', keywords: 'analyse, describe, devise' },
+  { topic: 'Retail store navigation', stakeholder: 'Visually impaired shopper', issue: 'Difficulty locating products and navigating aisles independently', keywords: 'analyse, propose, evaluate' },
+  { topic: 'Food truck service design', stakeholder: 'Event attendee at a music festival', issue: 'Long queues and poor legibility of menus causing frustration', keywords: 'describe, analyse, justify' },
+];
 
+function randomScenario() {
+  var s = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)];
+  $('f-topic').value       = s.topic;
+  $('f-stakeholder').value = s.stakeholder;
+  $('f-issue').value       = s.issue;
+  $('f-keywords').value    = s.keywords;
+  generate();
+}
+
+function skel(n, ws) {
+  var out = '';
+  for (var i = 0; i < n; i++) {
+    var w = ws ? ws[i % ws.length] : 80;
+    out += '<div class="skel" style="width:' + w + '%"></div>';
+  }
+  return out;
+}
+function bullets(arr) { return arr.map(function(t) { return '<li>' + t + '</li>'; }).join(''); }
+
+function showLoading() {
+  $('hint').style.display = 'none';
+  $('exam-sheet').style.display = 'block';
+  $('dp-p1').innerHTML = skel(3, [95,82,68]);
+  $('dp-p2').innerHTML = skel(3, [90,78,60]);
+  $('sh-intro').innerHTML = skel(2, [85,62]);
+  ['sh-exp','sh-att','sh-mot','sh-exp2'].forEach(function(id) {
+    var html = '';
+    for (var i = 0; i < 4; i++) html += '<li>' + skel(1, [50 + Math.floor(Math.random() * 35)]) + '</li>';
+    $(id).innerHTML = html;
+  });
+  var ch = '';
+  for (var i = 0; i < 3; i++) ch += '<li><span class="crit-n">-</span><div>' + skel(2,[78,55]) + '</div></li>';
+  $('crit-list').innerHTML = ch;
+}
+
+async function loadImages(terms) {
+  for (var i = 0; i < 4; i++) {
+    var slot = $('img-' + i);
+    var term = encodeURIComponent(terms[i]);
+    try {
+      var res  = await fetch('https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=' + term + '&gsrlimit=5&prop=pageimages&piprop=thumbnail&pithumbsize=500&format=json&origin=*');
+      var data = await res.json();
+      var pages = Object.values((data.query && data.query.pages) || {});
+      var page = null;
+      for (var j = 0; j < pages.length; j++) { if (pages[j].thumbnail) { page = pages[j]; break; } }
+      if (page && page.thumbnail && page.thumbnail.source) {
+        var img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = page.thumbnail.source;
+        img.style.width = '100%'; img.style.height = '100%';
+        img.style.objectFit = 'cover'; img.style.display = 'block';
+        (function(s, im) { im.onload = function() { s.innerHTML = ''; s.appendChild(im); }; })(slot, img);
+      }
+    } catch(e) {}
+  }
+}
+
+/* Store generated data for copy function */
+var lastData = null;
+var lastTopic = '';
+var lastStakeholder = '';
+
+function populate(d, topic, stakeholder) {
+  lastData = d; lastTopic = topic; lastStakeholder = stakeholder;
+  $('sh-meta').innerHTML = 'Design Topic: <strong>' + topic + '</strong> &nbsp;|&nbsp; Stakeholder: <strong>' + stakeholder + '</strong>';
+  $('dp-p1').textContent = d.design_problem.context;
+  $('dp-p2').textContent = d.design_problem.brief;
+  $('sh-intro').textContent = d.stakeholder.intro;
+  $('sh-exp').innerHTML  = bullets(d.stakeholder.experiences);
+  $('sh-att').innerHTML  = bullets(d.stakeholder.attitudes);
+  $('sh-mot').innerHTML  = bullets(d.stakeholder.motivations);
+  $('sh-exp2').innerHTML = bullets(d.stakeholder.expectations);
+  var ch = '';
+  for (var i = 0; i < d.design_criteria.length; i++) {
+    var c = d.design_criteria[i];
+    ch += '<li><span class="crit-n">' + (i+1) + '.</span><div><span class="crit-lbl">' + c.label + '</span> - ' + c.description + '</div></li>';
+  }
+  $('crit-list').innerHTML = ch;
+  if (d.image_searches) loadImages(d.image_searches);
+}
+
+/* ── QCAA Design 2025 syllabus-aware prompt ── */
+function buildPrompt(topic, stakeholder, issue, keywords) {
+  return 'You are an expert Design Technology exam writer for Queensland senior secondary school, ' +
+    'writing assessments aligned to the QCAA Design 2025 General Senior Syllabus.\n\n' +
+    'Key syllabus requirements you MUST follow:\n' +
+    '- Design problems must address AESTHETIC, CULTURAL, ECONOMIC, SOCIAL and TECHNICAL features\n' +
+    '- Design problems must be open-ended with no single correct answer and relate to real-world stakeholder needs\n' +
+    '- Design criteria must integrate stakeholder requirements AND the principles of good design: innovative, useful, aesthetic, accessible, sustainable\n' +
+    '- Language must use correct QCAA Design terminology: needs and wants, design problem, design criteria, stakeholder, constraints, features\n' +
+    '- Verbs from the syllabus cognitive framework: describe, analyse, devise, evaluate, propose, represent, justify\n\n' +
+    'Teacher inputs:\n' +
+    '- Design Topic: ' + topic + '\n' +
+    '- Stakeholder: ' + stakeholder + '\n' +
+    '- Specific Issue: ' + issue + '\n' +
+    '- Keywords/Verbs: ' + keywords + '\n\n' +
+    'Return ONLY a raw JSON object, no markdown, no code fences, no extra text:\n\n' +
+    '{\n' +
+    '  "design_problem": {\n' +
+    '    "context": "MAXIMUM 2 sentences only. State the real-world context and name the stakeholder and issue. Be concise.",\n' +
+    '    "brief": "MAXIMUM 2 sentences only. State what must be designed and 2-3 key constraints. Open-ended, no single correct answer."\n' +
+    '  },\n' +
+    '  "stakeholder": {\n' +
+    '    "intro": "MAXIMUM 2 sentences only. Name the stakeholder (realistic first name, age, role). State how the issue affects them. Be brief.",\n' +
+    '    "experiences": ["4-6 word phrase","4-6 word phrase","4-6 word phrase","4-6 word phrase"],\n' +
+    '    "attitudes": ["4-6 word phrase","4-6 word phrase","4-6 word phrase"],\n' +
+    '    "motivations": ["4-6 word phrase","4-6 word phrase","4-6 word phrase"],\n' +
+    '    "expectations": ["4-6 word phrase","4-6 word phrase","4-6 word phrase","4-6 word phrase"]\n' +
+    '  },\n' +
+    '  "design_criteria": [\n' +
+    '    {"label":"One active verb + noun e.g. Improve Comfort, Integrate Storage, Support Mobility","description":"One concise sentence stating the requirement."},\n' +
+    '    {"label":"One active verb + noun e.g. Reduce Noise, Encourage Use, Secure Access","description":"One concise sentence."},\n' +
+    '    {"label":"One active verb + noun e.g. Enhance Aesthetics, Incentivise Behaviour, Simplify Navigation","description":"One concise sentence."}\n' +
+    '  ],\n' +
+    '  "image_searches": [\n' +
+    '    "Wikipedia search term for the problem context or environment — NO weapons, NO military, NO political, NO religious, NO adult content",\n' +
+    '    "Wikipedia search term for the stakeholder in their real everyday setting — NO weapons, NO military, NO political, NO religious, NO adult content",\n' +
+    '    "Wikipedia search term for the issue or difficulty being experienced — NO weapons, NO military, NO political, NO religious, NO adult content",\n' +
+    '    "Wikipedia search term for the place or setting where the problem occurs — NO weapons, NO military, NO political, NO religious, NO adult content"\n' +
+    '  ]\n' +
+    '}\n\n' +
+    'CRITICAL rules:\n' +
+    '1. Design problem paragraphs: MAXIMUM 2 sentences each — short and direct.\n' +
+    '2. Stakeholder intro: MAXIMUM 2 sentences — name, age, role, impact only.\n' +
+    '3. Bullet phrases: 4-6 words maximum each.\n' +
+    '4. Criteria labels: must start with ONE active verb only (e.g. Improve, Support, Integrate, Reduce, Encourage, Secure, Enhance, Incentivise, Simplify, Increase, Enable).\n' +
+    '5. Image searches: must be educationally safe — no weapons, warfare, military, political figures, religious imagery, or adult content. Use everyday, neutral, school-appropriate subjects only.\n' +
+    '6. Images show EXISTING PROBLEM CONTEXT only — never design solutions or products.\n' +
+    '7. Return ONLY the JSON.';
+}
+
+async function generate() {
+  var topic       = $('f-topic').value.trim();
+  var stakeholder = $('f-stakeholder').value.trim();
+  var issue       = $('f-issue').value.trim();
+  var keywords    = $('f-keywords').value.trim() || 'analyse, describe, justify';
+
+  if (!topic || !stakeholder || !issue) {
+    $('status').textContent = 'Please complete Topic, Stakeholder and Issue fields.';
+    return;
+  }
+
+  $('btn-gen').disabled = $('btn-rand').disabled = $('btn-pdf').disabled = $('btn-copy').disabled = true;
+  $('status').textContent = 'Generating with AI...';
+  showLoading();
+
+  try {
+    var res = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1600,
+        messages: [{ role: 'user', content: buildPrompt(topic, stakeholder, issue, keywords) }]
+      })
+    });
+    var raw  = await res.json();
+    var text = (raw.content || []).map(function(b) { return b.text || ''; }).join('');
+    var data = JSON.parse(text.replace(/```json|```/g, '').trim());
+    populate(data, topic, stakeholder);
+    $('status').textContent = 'Exam generated. Wait a moment for images to load before downloading PDF.';
+    $('btn-pdf').disabled = $('btn-copy').disabled = false;
+  } catch(e) {
+    $('status').textContent = 'Generation failed - check the console.';
+    console.error(e);
+  }
+  $('btn-gen').disabled = $('btn-rand').disabled = false;
+}
+
+/* COPY TEXT — plain text version for pasting into Word */
+function copyText() {
+  if (!lastData) return;
+  var d = lastData;
+  var lines = [
+    'DESIGN EXAM',
+    'Design Topic: ' + lastTopic + '  |  Stakeholder: ' + lastStakeholder,
+    '',
+    'DESIGN PROBLEM',
+    d.design_problem.context,
+    '',
+    d.design_problem.brief,
+    '',
+    'ABOUT THE STAKEHOLDER',
+    d.stakeholder.intro,
+    '',
+    'Experiences:',
+    d.stakeholder.experiences.map(function(x){ return '  - ' + x; }).join('\n'),
+    '',
+    'Attitudes:',
+    d.stakeholder.attitudes.map(function(x){ return '  - ' + x; }).join('\n'),
+    '',
+    'Motivations:',
+    d.stakeholder.motivations.map(function(x){ return '  - ' + x; }).join('\n'),
+    '',
+    'Expectations:',
+    d.stakeholder.expectations.map(function(x){ return '  - ' + x; }).join('\n'),
+    '',
+    'DESIGN CRITERIA',
+  ];
+  for (var i = 0; i < d.design_criteria.length; i++) {
+    var c = d.design_criteria[i];
+    lines.push((i+1) + '. ' + c.label + ' - ' + c.description);
+  }
+  var text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(function() {
+    $('status').textContent = 'Text copied to clipboard - paste into Word with Ctrl+V.';
+  }).catch(function() {
+    $('status').textContent = 'Copy failed - try a different browser.';
+  });
+}
+
+/* PDF */
+$('btn-pdf').addEventListener('click', function() {
+  $('status').textContent = 'Building PDF... please wait';
+  $('btn-pdf').disabled = true;
+  var sheet = $('exam-sheet');
+  var prevShadow = sheet.style.boxShadow;
+  sheet.style.boxShadow = 'none';
+  setTimeout(function() {
+    html2pdf().set({
+      margin:      0,
+      filename:    'design-exam.pdf',
+      image:       { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 1, useCORS: true, logging: false, scrollX: 0, scrollY: 0 },
+      jsPDF:       { unit: 'mm', format: 'a3', orientation: 'landscape' }
+    }).from(sheet).save().then(function() {
+      sheet.style.boxShadow = prevShadow;
+      $('status').textContent = 'PDF downloaded.';
+      $('btn-pdf').disabled = false;
+    });
+  }, 3000);
+});
+
+$('btn-gen').addEventListener('click', generate);
+$('btn-rand').addEventListener('click', randomScenario);
+$('btn-copy').addEventListener('click', copyText);
+
+document.querySelectorAll('input').forEach(function(el) {
+  el.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      generate();
+    }
+  });
+});
+</script>
 </body>
 </html>
