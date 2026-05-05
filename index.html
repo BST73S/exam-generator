@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>emailjs.init('mKAVLUejoqcXY8-6c');</script>
 <title>Design Exam Generator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
@@ -33,23 +35,14 @@ body { font-family: Arial, Helvetica, sans-serif; background: #d6d1c8; }
 #pw-btn:hover { background: #a83a22; }
 #pw-error { color: #c84b31; font-size: .88rem; margin-top: .8rem; min-height: 1em; line-height: 1.5; }
 
-/* USAGE COUNTER STRIP */
-#usage-strip {
-  background: #111827; color: #6b7280;
-  font-size: .72rem; text-align: right;
-  padding: .3rem 1.8rem;
-  letter-spacing: .04em;
-}
-#usage-strip span { color: #9ca3af; font-weight: 600; }
-
 /* CONTROL PANEL */
 #control-panel {
   background: #1a1a2e; color: #fff;
   padding: 1.2rem 1.8rem;
   display: flex; flex-wrap: wrap; gap: .9rem; align-items: flex-end;
 }
-.panel-title { width: 100%; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: .6rem; }
-.badge { font-size: .6rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; background: #c84b31; padding: .2rem .5rem; border-radius: 2px; }
+.panel-title { width: 100%; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.badge { font-size: .6rem; font-weight: 700; letter-spacing: .1em; text-transform: none; background: #c84b31; padding: .2rem .5rem; border-radius: 2px; }
 .field-wrap { display: flex; flex-direction: column; gap: .3rem; flex: 1; min-width: 150px; }
 .field-wrap label { font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8090a0; }
 .field-wrap input {
@@ -59,11 +52,12 @@ body { font-family: Arial, Helvetica, sans-serif; background: #d6d1c8; }
 }
 .field-wrap input::placeholder { color: rgba(255,255,255,.28); }
 .field-wrap input:focus { border-color: #c84b31; }
-.actions { display: flex; gap: .55rem; align-items: flex-end; flex-wrap: wrap; }
+.actions { display: flex; gap: .9rem; align-items: flex-end; flex-wrap: wrap; width: 100%; }
 .btn {
   font-family: Arial, Helvetica, sans-serif; font-weight: 700; font-size: .8rem;
   padding: .52rem 1.1rem; border: none; border-radius: 3px; cursor: pointer;
-  display: flex; align-items: center; gap: .4rem; white-space: nowrap;
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+  flex: 1; min-width: 150px; height: 2.4rem;
 }
 .btn-gen  { background: #c84b31; color: #fff; }
 .btn-gen:hover  { background: #a83a22; }
@@ -115,7 +109,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: #d6d1c8; }
 .crit-ol { list-style: none; padding: 0; display: flex; flex-direction: column; gap: .45em; }
 .crit-ol li { display: flex; gap: .5em; font-size: .88em; line-height: 1.5; color: #111; }
 .crit-n { font-weight: 700; flex-shrink: 0; min-width: 1.4em; }
-.crit-lbl { font-weight: 700; }
+.crit-lbl { font-weight: 400; }
 .img-grid {
   display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
   gap: .4em; flex: 1; min-height: 260px; height: 100%;
@@ -175,25 +169,21 @@ body { font-family: Arial, Helvetica, sans-serif; background: #d6d1c8; }
 
 </div>
 
-<!-- PASSWORD GATE -->
-<div id="pw-gate">
-  <div id="pw-box">
-    <h2>Design Exam Generator</h2>
-    <p>Enter the access password to continue</p>
-    <input id="pw-input" type="password" placeholder="Password" />
-    <button id="pw-btn" onclick="checkPassword()">Enter</button>
-    <div id="pw-error"></div>
-  </div>
-</div>
 
-<!-- USAGE STRIP -->
-<div id="usage-strip">
-  Exams generated this session: <span id="usage-daily">0</span>
-</div>
-
-<!-- CONTROL PANEL -->
+<!-- 
+  IA1 Design
+  Developed by B Thomas | webdesignbyb@gmail.com
+  © 2026 All rights reserved.
+  
+  This tool and its underlying code, AI prompt architecture, and design system
+  are the intellectual property of the developer. Unauthorised copying, 
+  modification, or redistribution of this code is prohibited.
+  
+  Powered by Claude AI (Anthropic) | Hosted on Vercel
+  Aligned to QCAA Design 2025 General Senior Syllabus
+-->
 <div id="control-panel">
-  <div class="panel-title">Design Exam Generator <span class="badge">AI Powered</span></div>
+  <div class="panel-title">Design Exams<span class="badge">Design Teachers</div>
   <div class="field-wrap">
     <label>Design Topic</label>
     <input id="f-topic" type="text" placeholder="e.g. Sustainable Packaging" />
@@ -229,15 +219,17 @@ body { font-family: Arial, Helvetica, sans-serif; background: #d6d1c8; }
     </button>
   </div>
   <div id="status"></div>
+  <div><a href="log.html" style="color:#ffffff;font-weight:700;">View all generated exams →</a></div>
+  <div><a href="persona.html" style="color:#ffffff;font-weight:700;">Go to persona generator →</a></div>
 </div>
 
 <!-- SHEET AREA -->
 <div id="sheet-area">
   <div id="hint">Fill in the fields above and click <strong>Generate Exam</strong>, or click <strong>Random</strong> to auto-populate a scenario.</div>
-  <div id="exam-sheet">
+    <div id="exam-sheet">
     <div class="sheet-grid">
       <div class="sh-header">
-        <div class="sh-title">Mock Exam</div>
+        <div class="sh-title">Stimulus</div>
         <div class="sh-meta" id="sh-meta"></div>
       </div>
       <div class="col-left">
@@ -270,8 +262,25 @@ body { font-family: Arial, Helvetica, sans-serif; background: #d6d1c8; }
     </div>
   </div>
 </div>
-
 <script>
+  const names = [
+  "Jack","Mia","Liam","Chloe","Tom","Ruby","Ben","Ella","Harry","Grace","Sam","Zoe","Noah","Olivia","Will",
+  "Jarrah","Kirra","Tali","Yarran","Nyree","Kobie",
+  "Anh","Wei","Priya","Ravi","Yuki","Jin","Mei","Arjun","Sakura","Bao",
+  "Layla","Omar","Yasmin","Tariq","Nadia","Hamid",
+  "Sofia","Marco","Eleni","Katja","Lukas","Ingrid",
+  "Amara","Kofi","Fatima","Zara","Emmanuel","Adaeze"
+];
+
+function getRandomName() {
+  return names[Math.floor(Math.random() * names.length)];
+}
+
+var JSONBIN_API_KEY = '$2a$10$Q9G3Wg9o3dYEbpyWjizqBuUiwLDWbI4VU0waZUcKOr4hWXf3kIzFC';
+var JSONBIN_PENDING_ID   = '69e044d0aaba88219703f4d3';
+
+var randomName = getRandomName();
+  
 var $ = function(id) { return document.getElementById(id); };
 
 /* ── CHANGE PASSWORD HERE ── */
@@ -312,6 +321,7 @@ function incrementUsage() {
 
 /* ── RANDOM SCENARIO BANK ── aligned to QCAA Design 2025 units ── */
 var SCENARIOS = [
+  // ORIGINAL 15
   { topic: 'School waste management', stakeholder: 'Secondary school student', issue: 'Littering and overflowing bins in school grounds', keywords: 'analyse, describe, justify' },
   { topic: 'Aged care mobility', stakeholder: 'Elderly resident in aged care', issue: 'Difficulty moving safely between rooms independently', keywords: 'analyse, evaluate, propose' },
   { topic: 'Urban cycling infrastructure', stakeholder: 'Commuter cyclist', issue: 'Lack of safe and convenient bike storage at workplaces', keywords: 'analyse, devise, evaluate' },
@@ -327,6 +337,41 @@ var SCENARIOS = [
   { topic: 'Water bottle refill access', stakeholder: 'University student on campus', issue: 'Insufficient refill stations leading to single-use plastic waste', keywords: 'analyse, describe, devise' },
   { topic: 'Retail store navigation', stakeholder: 'Visually impaired shopper', issue: 'Difficulty locating products and navigating aisles independently', keywords: 'analyse, propose, evaluate' },
   { topic: 'Food truck service design', stakeholder: 'Event attendee at a music festival', issue: 'Long queues and poor legibility of menus causing frustration', keywords: 'describe, analyse, justify' },
+
+  // BRISBANE 2032 OLYMPICS
+  { topic: 'Brisbane 2032 Olympic visitor experience', stakeholder: 'International tourist attending Olympic events', issue: 'Difficulty navigating between multiple venues across Greater Brisbane', keywords: 'analyse, propose, evaluate' },
+  { topic: 'Olympic volunteer coordination', stakeholder: 'Games volunteer managing crowd flow', issue: 'Lack of clear communication tools during high-density event periods', keywords: 'analyse, devise, justify' },
+  { topic: 'Olympic legacy community spaces', stakeholder: 'Brisbane suburban resident post-Games', issue: 'Underused Olympic infrastructure not adapted for community needs', keywords: 'evaluate, propose, analyse' },
+  { topic: 'Accessible Olympic spectator facilities', stakeholder: 'Wheelchair user attending Olympic events', issue: 'Insufficient accessible seating and amenity access at venues', keywords: 'analyse, describe, propose' },
+
+  // COST OF LIVING
+  { topic: 'Rising fuel costs and commuting', stakeholder: 'Outer-suburban family dependent on car travel', issue: 'Weekly fuel costs consuming a significant portion of household income', keywords: 'analyse, evaluate, devise' },
+  { topic: 'Grocery cost management', stakeholder: 'Single parent on a fixed income', issue: 'Difficulty affording fresh food while managing a weekly budget', keywords: 'analyse, propose, justify' },
+  { topic: 'Energy cost reduction in the home', stakeholder: 'Retiree on a pension in a Queensland home', issue: 'High electricity bills driven by air conditioning in summer months', keywords: 'analyse, evaluate, propose' },
+  { topic: 'Fuel-efficient delivery logistics', stakeholder: 'Small business owner relying on vehicle deliveries', issue: 'Rising fuel costs reducing profit margins on local deliveries', keywords: 'analyse, devise, evaluate' },
+
+  // URBAN LIVING
+  { topic: 'High-density apartment living', stakeholder: 'Young professional in a Brisbane inner-city apartment', issue: 'Limited storage and multi-use living space in small apartments', keywords: 'analyse, devise, propose' },
+  { topic: 'Urban heat and outdoor comfort', stakeholder: 'Pedestrian commuter in inner Brisbane', issue: 'Lack of shade and cool rest areas along urban footpaths in summer', keywords: 'analyse, evaluate, propose' },
+  { topic: 'Urban noise pollution', stakeholder: 'Shift worker living near a busy road', issue: 'Difficulty sleeping during the day due to traffic and construction noise', keywords: 'analyse, describe, evaluate' },
+  { topic: 'Micro-housing design', stakeholder: 'First home buyer priced out of traditional housing', issue: 'Need for affordable, functional living in a very small footprint', keywords: 'devise, evaluate, propose' },
+  { topic: 'Urban stormwater and flooding', stakeholder: 'Homeowner in a flood-prone Brisbane suburb', issue: 'Repeated property damage from inadequate stormwater management', keywords: 'analyse, evaluate, justify' },
+
+  // LEFT-HANDED DEXTERITY AND INCLUSIVITY
+  { topic: 'Left-handed tool design', stakeholder: 'Left-handed trade apprentice', issue: 'Standard power tools and hand tools designed exclusively for right-handed use', keywords: 'analyse, devise, evaluate' },
+  { topic: 'Left-handed kitchen utensils', stakeholder: 'Left-handed home cook', issue: 'Difficulty using standard peelers, scissors and can openers safely', keywords: 'describe, analyse, propose' },
+  { topic: 'Left-handed classroom furniture', stakeholder: 'Left-handed secondary school student', issue: 'Fixed right-arm desks causing postural discomfort during extended writing', keywords: 'analyse, evaluate, propose' },
+  { topic: 'Left-handed sports equipment', stakeholder: 'Left-handed junior athlete', issue: 'Limited availability and higher cost of left-handed sporting equipment', keywords: 'analyse, devise, justify' },
+
+  // BROADER SOCIAL AND ENVIRONMENTAL
+  { topic: 'Bushfire evacuation communication', stakeholder: 'Rural Queensland homeowner in a fire-prone area', issue: 'Unclear and delayed evacuation information during emergency events', keywords: 'analyse, propose, evaluate' },
+  { topic: 'Screen time and youth wellbeing', stakeholder: 'Parent of a primary school-aged child', issue: 'Difficulty managing and monitoring healthy screen time at home', keywords: 'analyse, describe, devise' },
+  { topic: 'Food waste in school canteens', stakeholder: 'School canteen manager', issue: 'Large volumes of unsold food discarded daily with no redistribution system', keywords: 'analyse, evaluate, propose' },
+  { topic: 'Reef-safe sunscreen awareness', stakeholder: 'Queensland recreational snorkeller', issue: 'Lack of clear product information about sunscreen impact on coral reefs', keywords: 'analyse, describe, justify' },
+  { topic: 'Portable shade for outdoor workers', stakeholder: 'Construction site labourer in Queensland summer', issue: 'Insufficient personal shade solutions during mandatory outdoor work hours', keywords: 'analyse, devise, evaluate' },
+  { topic: 'Night economy safety', stakeholder: 'Young woman navigating Brisbane CBD at night', issue: 'Limited safe, well-lit rest and waiting areas in entertainment precincts', keywords: 'analyse, evaluate, propose' },
+  { topic: 'Ageing driver independence', stakeholder: 'Elderly driver facing licence reassessment', issue: 'Loss of mobility and independence when driving becomes unsafe', keywords: 'analyse, describe, devise' },
+  { topic: 'Cultural food market design', stakeholder: 'Multicultural community food vendor', issue: 'Inadequate market infrastructure for preparing and serving culturally diverse food', keywords: 'analyse, propose, evaluate' },
 ];
 
 function randomScenario() {
@@ -360,7 +405,7 @@ function showLoading() {
     $(id).innerHTML = html;
   });
   var ch = '';
-  for (var i = 0; i < 3; i++) ch += '<li><span class="crit-n">-</span><div>' + skel(2,[78,55]) + '</div></li>';
+  for (var i = 0; i < 3; i++) ch += '<li><span class="crit-lbl">' + skel(1,[85]) + '</span></li>';
   $('crit-list').innerHTML = ch;
 }
 
@@ -391,7 +436,6 @@ var lastStakeholder = '';
 
 function populate(d, topic, stakeholder) {
   lastData = d; lastTopic = topic; lastStakeholder = stakeholder;
-  $('sh-meta').innerHTML = 'Design Topic: <strong>' + topic + '</strong> &nbsp;|&nbsp; Stakeholder: <strong>' + stakeholder + '</strong>';
   $('dp-p1').textContent = d.design_problem.context;
   $('dp-p2').textContent = d.design_problem.brief;
   $('sh-intro').textContent = d.stakeholder.intro;
@@ -400,9 +444,10 @@ function populate(d, topic, stakeholder) {
   $('sh-mot').innerHTML  = bullets(d.stakeholder.motivations);
   $('sh-exp2').innerHTML = bullets(d.stakeholder.expectations);
   var ch = '';
-  for (var i = 0; i < d.design_criteria.length; i++) {
-    var c = d.design_criteria[i];
-    ch += '<li><span class="crit-n">' + (i+1) + '.</span><div><span class="crit-lbl">' + c.label + '</span> - ' + c.description + '</div></li>';
+  var criteria = d.design_criteria.slice(0, 3);
+  for (var i = 0; i < criteria.length; i++) {
+    var c = criteria[i];
+    ch += '<li><span class="crit-n">' + (i+1) + '.</span><div><span class="crit-lbl">' + (c.label || '') + '</span></div></li>';
   }
   $('crit-list').innerHTML = ch;
   if (d.image_searches) loadImages(d.image_searches);
@@ -426,20 +471,20 @@ function buildPrompt(topic, stakeholder, issue, keywords) {
     'Return ONLY a raw JSON object, no markdown, no code fences, no extra text:\n\n' +
     '{\n' +
     '  "design_problem": {\n' +
-    '    "context": "MAXIMUM 2 sentences only. State the real-world context and name the stakeholder and issue. Be concise.",\n' +
-    '    "brief": "MAXIMUM 2 sentences only. State what must be designed and 2-3 key constraints. Open-ended, no single correct answer."\n' +
+    '    "context": "1-2 sentences maximum. Use the stakeholder\'s first name. Directly state their situation and the specific problem it causes. Be blunt and human — like this example: \'[NAME] has limited use of his left arm. He is finding it very hard to manage his backpack at the sporting events he attends as a spectator.\'",\n' +
+    '    "brief": "1 sentence only. State exactly what must be designed and for whom. Like this example: \'Design a bag to be developed that suits his specific needs.\' Keep it open-ended enough for multiple solutions but specific enough to start sketching immediately."\n' +
     '  },\n' +
     '  "stakeholder": {\n' +
-    '    "intro": "MAXIMUM 2 sentences only. Name the stakeholder (realistic first name, age, role). State how the issue affects them. Be brief.",\n' +
-    '    "experiences": ["4-6 word phrase","4-6 word phrase","4-6 word phrase","4-6 word phrase"],\n' +
-    '    "attitudes": ["4-6 word phrase","4-6 word phrase","4-6 word phrase"],\n' +
-    '    "motivations": ["4-6 word phrase","4-6 word phrase","4-6 word phrase"],\n' +
-    '    "expectations": ["4-6 word phrase","4-6 word phrase","4-6 word phrase","4-6 word phrase"]\n' +
+    '    "intro": "MAXIMUM 2 sentences only. Use the name ' + randomName + '. State age and role. State how the issue affects them. Be brief.",\n' +
+    '    "experiences": ["Full sentence using the stakeholder\'s first name describing a specific lived experience with the issue — e.g. \'Rik cannot open the clips or zip of his backpack with one hand unless it is on the ground.\'","Second specific experience sentence using their name","Third specific experience sentence using their name","Fourth specific experience sentence using their name"],\n' +
+    '    "attitudes": ["Full sentence using their name describing a specific attitude or feeling about the issue — e.g. \'Rik doesn\'t like bag searches as he cannot open the bag by himself.\'","Second attitude sentence using their name","Third attitude sentence using their name"],\n' +
+    '    "motivations": ["Full sentence revealing something personal about who they are and why this matters to them — e.g. \'As an ex-sports person Rik has always been very physically capable and wants to manage on his own.\'","Second motivation sentence using their name"],\n' +
+    '    "expectations": ["Full sentence stating what they expect a design solution to enable them to do — e.g. \'Rik expects to be able to open and close his own bag without friends\' help.\'","Second expectation sentence using their name","Third expectation sentence using their name"]\n' +
     '  },\n' +
     '  "design_criteria": [\n' +
-    '    {"label":"SINGLE verb + noun ONLY. Examples: Improve Comfort, Integrate Storage, Support Mobility, Reduce Noise, Encourage Use, Secure Access, Enhance Appearance, Incentivise Behaviour, Simplify Navigation, Enable Independence","description":"One concise sentence stating the measurable requirement."},\n' +
-    '    {"label":"SINGLE verb + noun ONLY — different verb from criterion 1","description":"One concise sentence."},\n' +
-    '    {"label":"SINGLE verb + noun ONLY — different verb from criteria 1 and 2","description":"One concise sentence."}\n' +
+    '    {"label":"A short bullet phrase beginning with a verb that completes the sentence \'The design must...\' — e.g. \'improve [NAME]\'s ability to carry and open the bag with one hand\' or \'effectively secure and organise items [NAME] takes to sporting events\' or \'integrate an aesthetic related to [context]\'. Use the stakeholder\'s first name where natural."},\n' +
+    '    {"label":"Second criterion phrase completing \'The design must...\' — different focus from #1, use stakeholder name where natural"},\n' +
+    '    {"label":"Third criterion phrase completing \'The design must...\' — different focus from #1 and #2"}\n' +
     '  ],\n' +
     '  "image_searches": [\n' +
     '    "Wikipedia search term for the problem context or environment — NO weapons, NO military, NO political, NO religious, NO adult content",\n' +
@@ -451,18 +496,28 @@ function buildPrompt(topic, stakeholder, issue, keywords) {
     'CRITICAL rules:\n' +
     '1. Design problem paragraphs: MAXIMUM 2 sentences each — short and direct.\n' +
     '2. Stakeholder intro: MAXIMUM 2 sentences — name, age, role, impact only.\n' +
-    '3. Bullet phrases: 4-6 words maximum each.\n' +
+    '3. Experiences, Attitudes, Motivations, Expectations: Each section must contain 2–4 bullet points MAX. Each bullet must be ONE brief sentence only. Use the stakeholder’s name or pronouns (he/she) SPARINGLY — not in every sentence. Sentences must still feel specific and personalised to the stakeholder’s real-life situation.\n' +
     '4. Criteria labels: must start with ONE active verb only (e.g. Improve, Support, Integrate, Reduce, Encourage, Secure, Enhance, Incentivise, Simplify, Increase, Enable).\n' +
-    '5. Image searches: must be educationally safe — no weapons, warfare, military, political figures, religious imagery, or adult content. Use everyday, neutral, school-appropriate subjects only.\n' +
-    '6. Images show EXISTING PROBLEM CONTEXT only — never design solutions or products.\n' +
-    '7. Return ONLY the JSON.';
+    '5. design_criteria MUST contain EXACTLY 3 items — never 4 or 5. This is non-negotiable.\n' +
+    '6. Each criterion must give a student enough direction to begin sketching ideas immediately.\n' +
+    '7. Image searches: educationally safe only — no weapons, warfare, military, political, religious, or adult content.\n' +
+    '8. Images show EXISTING PROBLEM CONTEXT only — never design solutions or products.\n' +
+    '9. Return ONLY the JSON.';
 }
 
 async function generate() {
-  var topic       = $('f-topic').value.trim();
-  var stakeholder = $('f-stakeholder').value.trim();
-  var issue       = $('f-issue').value.trim();
-  var keywords    = $('f-keywords').value.trim() || 'analyse, describe, justify';
+  randomName = getRandomName();
+  
+ function sanitise(str) {
+  return str.trim()
+    .replace(/[^a-zA-Z0-9\s\-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+var topic       = sanitise($('f-topic').value);
+var stakeholder = sanitise($('f-stakeholder').value);
+var issue       = sanitise($('f-issue').value);
+var keywords    = sanitise($('f-keywords').value) || 'analyse, describe, justify';
 
   if (!topic || !stakeholder || !issue) {
     $('status').textContent = 'Please complete Topic, Stakeholder and Issue fields.';
@@ -491,18 +546,113 @@ async function generate() {
       $('btn-gen').disabled = $('btn-rand').disabled = false;
       return;
     }
-    var data = JSON.parse(text.replace(/```json|```/g, '').trim());
-    populate(data, topic, stakeholder);
-    $('status').textContent = 'Exam generated. Wait a moment for images to load before downloading PDF.';
-    incrementUsage();
-    $('btn-pdf').disabled = $('btn-copy').disabled = false;
-  } catch(e) {
-    $('status').textContent = 'Generation failed - check the console.';
-    console.error(e);
-  }
-  $('btn-gen').disabled = $('btn-rand').disabled = false;
+    var entry = {
+  id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+  topic: topic, stakeholder: stakeholder, issue: issue,
+  time: new Date().toLocaleString('en-AU',
+  {timeZone:'Australia/Brisbane'}),
+  data: data
+};
+  var clean = text.replace(/```json|```/g, '').trim();
+var data;
+
+try {
+  data = JSON.parse(clean);
+} catch (e) {
+  console.error('JSON parse failed:', clean);
+  $('status').textContent = 'Error: AI response was not valid JSON.';
+  return; // 🚨 STOP everything if parsing fails
 }
 
+// ✅ Validate structure BEFORE using it
+if (
+  !data ||
+  !data.design_problem ||
+  !data.stakeholder ||
+  !data.design_criteria
+) {
+  console.error('Invalid data structure:', data);
+  $('status').textContent = 'Error: Incomplete data received.';
+  return; // 🚨 STOP saving bad entries
+}
+
+// ✅ NOW safe to use
+populate(data, topic, stakeholder);
+
+var entry = {
+  id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+  topic,
+  stakeholder,
+  issue,
+  time: new Date().toLocaleString('en-AU', { timeZone: 'Australia/Brisbane' }),
+  data: data // ✅ guaranteed valid now
+};
+$('status').textContent = 'Exam generated. Wait a moment for images to load before downloading PDF.';
+// Get approximate location from IP
+fetch('https://ipapi.co/json/')
+  .then(function(r) { return r.json(); })
+  .then(function(loc) {
+    emailjs.send('service_cmgbxwj', 'template_xti1156', {
+      topic:        topic,
+      stakeholder:  stakeholder,
+      issue:        issue,
+      time:         new Date().toLocaleString('en-AU', {timeZone: 'Australia/Brisbane'}),
+      dp_context:   data.design_problem.context,
+      dp_brief:     data.design_problem.brief,
+      sh_intro:     data.stakeholder.intro,
+      sh_exp:       data.stakeholder.experiences.join(' | '),
+      sh_att:       data.stakeholder.attitudes.join(' | '),
+      sh_mot:       data.stakeholder.motivations.join(' | '),
+      sh_exp2:      data.stakeholder.expectations.join(' | '),
+      criteria:     data.design_criteria.slice(0,3).map(function(c,i){ return (i+1)+'. '+c.label; }).join('\n'),
+      entry_id:     entry.id,
+      location:     loc.city + ', ' + loc.region + ', ' + loc.country_name + ' (' + loc.ip + ')'
+    });
+  })
+  .catch(function() {
+    // If location fails, send without it
+    emailjs.send('service_cmgbxwj', 'template_xti1156', {
+      topic:        topic,
+      stakeholder:  stakeholder,
+      issue:        issue,
+      time:         new Date().toLocaleString('en-AU', {timeZone: 'Australia/Brisbane'}),
+      dp_context:   data.design_problem.context,
+      dp_brief:     data.design_problem.brief,
+      sh_intro:     data.stakeholder.intro,
+      sh_exp:       data.stakeholder.experiences.join(' | '),
+      sh_att:       data.stakeholder.attitudes.join(' | '),
+      sh_mot:       data.stakeholder.motivations.join(' | '),
+      sh_exp2:      data.stakeholder.expectations.join(' | '),
+      criteria:     data.design_criteria.slice(0,3).map(function(c,i){ return (i+1)+'. '+c.label; }).join('\n'),
+      entry_id:     entry.id,
+      location:     'Location unavailable'
+    });
+  });
+
+    incrementUsage();
+    // Save to JSONBin log
+
+fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_PENDING_ID, { 
+  method: 'GET', headers: { 'X-Master-Key': JSONBIN_API_KEY }
+}).then(function(r){ return r.json(); }).then(function(resp){ 
+  var entries = (resp.record && resp.record.entries) || []; 
+  entries.push(entry); 
+  fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_PENDING_ID, { 
+    method: 'PUT', 
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key':
+      JSONBIN_API_KEY },
+            body: JSON.stringify({ entries: entries })
+  }); 
+}).catch(function(){}); 
+    
+    $('btn-pdf').disabled = $('btn-copy').disabled = false; 
+  } catch(e) { 
+    $('status').textContent = 'Generation failed - check the console.'; 
+    console.error(e); 
+  } 
+  $('btn-gen').disabled = $('btn-rand').disabled = false; 
+}
+  
 /* COPY TEXT — plain text version for pasting into Word */
 function copyText() {
   if (!lastData) return;
@@ -579,5 +729,11 @@ document.querySelectorAll('input').forEach(function(el) {
   });
 });
 </script>
+ <div id="hint">
+  © 2026 B Thomas (MEd) 
+  <a href="mailto:webdesignbyb@gmail.com" style="color: inherit; text-decoration: none;">
+    webdesignbyb@gmail.com
+  </a>
+</div>
 </body>
 </html>
